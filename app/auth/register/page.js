@@ -1,122 +1,124 @@
 "use client";
 
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "@/firebaseConfig";
-import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { auth, db } from "@/firebaseConfig";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, collection, serverTimestamp } from "firebase/firestore";
 
 export default function RegisterPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [studentName, setStudentName] = useState("");
-  const [lunchId, setLunchId] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleRegister = async (e) => {
+  // Generate a random ID for lunchId
+  const generateLunchId = () => doc(collection(db, "students")).id;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
-    if (!studentName.trim() || !lunchId.trim()) {
-      setError("Please fill in all fields.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const userCred = await createUserWithEmailAndPassword(
+      // 1. Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
+      const user = userCredential.user;
 
-      await setDoc(doc(db, "students", userCred.user.uid), {
-        name: studentName.trim(),
-        lunchId: lunchId.trim(),
+      // 2. Generate lunchId
+      const lunchId = generateLunchId();
+
+      // 3. Create student document
+      await setDoc(doc(db, "students", user.uid), {
+        name,
+        email,
+        lunchId,
+        createdAt: serverTimestamp(),
       });
 
+      // 4. Redirect
       router.push("/dashboard");
     } catch (err) {
-      setError(err.message || "Registration failed.");
-      console.error("Registration error:", err);
-    } finally {
+      console.error("Registration error:", err.message);
+      setError("Failed to register: " + err.message);
       setLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={handleRegister}
-      className="max-w-md mx-auto mt-10 space-y-4 p-4 border rounded shadow"
-    >
-      <h2 className="text-2xl font-bold text-center">Register</h2>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4">
+      <div className="bg-white p-8 rounded shadow-md max-w-md w-full">
+        <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
 
-      {error && <p className="text-red-600 text-center">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Full Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="mt-1 w-full border p-2 rounded focus:ring focus:ring-blue-500"
+            />
+          </div>
 
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-        className="w-full border px-3 py-2 rounded"
-        disabled={loading}
-        autoComplete="email"
-      />
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-1 w-full border p-2 rounded focus:ring focus:ring-blue-500"
+            />
+          </div>
 
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-        className="w-full border px-3 py-2 rounded"
-        disabled={loading}
-        autoComplete="new-password"
-      />
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-1 w-full border p-2 rounded focus:ring focus:ring-blue-500"
+            />
+          </div>
 
-      <input
-        type="text"
-        value={studentName}
-        onChange={(e) => setStudentName(e.target.value)}
-        placeholder="Student Name"
-        required
-        className="w-full border px-3 py-2 rounded"
-        disabled={loading}
-      />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
 
-      <input
-        type="text"
-        value={lunchId}
-        onChange={(e) => setLunchId(e.target.value)}
-        placeholder="Lunch ID"
-        required
-        className="w-full border px-3 py-2 rounded"
-        disabled={loading}
-      />
-
-      <button
-        type="submit"
-        className={`w-full py-2 rounded text-white ${
-          loading
-            ? "bg-green-400 cursor-not-allowed"
-            : "bg-green-600 hover:bg-green-700"
-        }`}
-        disabled={loading}
-      >
-        {loading ? "Registering..." : "Register"}
-      </button>
-
-      <p className="text-center text-sm mt-4">
-        Already have an account?{" "}
-        <Link href="/auth/login" className="text-blue-600 hover:underline">
-          Log in here
-        </Link>
-      </p>
-    </form>
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+        </form>
+      </div>
+    </div>
   );
 }

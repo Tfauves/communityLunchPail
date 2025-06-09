@@ -73,8 +73,8 @@ export default function LoginPage() {
 
       <p className="text-center text-sm mt-4">
         Don't have an account?{" "}
-        <Link href="/auth/register" legacyBehavior>
-          <a className="text-blue-600 hover:underline">Register here</a>
+        <Link href="/auth/register" className="text-blue-600 hover:underline">
+          Register here
         </Link>
       </p>
     </form>

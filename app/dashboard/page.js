@@ -25,16 +25,20 @@ export default function DashboardPage() {
         // Check for existing meal selection
         const docId = `${firebaseUser.uid}_${today}`;
         const selectionRef = doc(db, "mealSelections", docId);
-        const selectionSnap = await getDoc(selectionRef);
-
-        if (selectionSnap.exists()) {
-          const data = selectionSnap.data();
-          setSelectionExists(true);
-          setStatus(
-            data.needsMeal
-              ? "✅ You selected: Needs Meal"
-              : "❌ You selected: Does Not Need Meal"
-          );
+        try {
+          const selectionSnap = await getDoc(selectionRef);
+          if (selectionSnap.exists()) {
+            const data = selectionSnap.data();
+            setSelectionExists(true);
+            setStatus(
+              data.needsMeal
+                ? "✅ You selected: Needs Meal"
+                : "❌ You selected: Does Not Need Meal"
+            );
+          }
+        } catch (err) {
+          console.error("Error checking meal selection:", err);
+          setStatus("⚠️ Unable to load today's selection.");
         }
       }
       setLoading(false);
