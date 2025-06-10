@@ -18,8 +18,23 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Check if user is an admin based on their email
+      if (
+        ["admin@yourschool.edu", "lunchstaff@yourschool.edu"].includes(
+          user.email
+        )
+      ) {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError("Failed to log in. Please check your credentials.");
       console.error("Login failed:", err);
