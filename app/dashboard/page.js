@@ -22,9 +22,9 @@ export default function DashboardPage() {
       } else {
         setUser(firebaseUser);
 
-        // Check for existing meal selection
         const docId = `${firebaseUser.uid}_${today}`;
         const selectionRef = doc(db, "mealSelections", docId);
+
         try {
           const selectionSnap = await getDoc(selectionRef);
           if (selectionSnap.exists()) {
@@ -79,49 +79,57 @@ export default function DashboardPage() {
 
   if (loading)
     return (
-      <div className="p-6 text-center min-h-screen flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-600 text-lg animate-pulse">
         Loading...
-      </div>
+      </main>
     );
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center p-8">
-      <h1 className="text-3xl font-bold mb-4">School Lunch Tracker</h1>
-      <p className="mb-6 text-gray-700">Select your lunch option for today:</p>
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 py-12 text-center font-sans text-gray-800">
+      <div className="bg-white p-10 rounded-2xl shadow-md w-full max-w-lg border border-gray-200">
+        <h1 className="text-3xl font-bold text-blue-700 mb-4">
+          🥪 School Lunch Tracker
+        </h1>
+        <p className="text-gray-600 mb-6">
+          Select your lunch option for today:
+        </p>
 
-      <div className="flex gap-6 mb-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+          <button
+            onClick={() => submitMealChoice(true)}
+            className={`px-6 py-3 rounded-md font-medium text-white transition shadow ${
+              selectionExists
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
+            disabled={selectionExists}
+          >
+            ✅ Needs Meal
+          </button>
+          <button
+            onClick={() => submitMealChoice(false)}
+            className={`px-6 py-3 rounded-md font-medium text-white transition shadow ${
+              selectionExists
+                ? "bg-red-300 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
+            }`}
+            disabled={selectionExists}
+          >
+            ❌ Does Not Need Meal
+          </button>
+        </div>
+
+        {status && (
+          <p className="text-base font-semibold text-gray-700">{status}</p>
+        )}
+
         <button
-          onClick={() => submitMealChoice(true)}
-          className={`px-6 py-3 rounded-lg shadow transition text-white ${
-            selectionExists
-              ? "bg-green-300 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
-          disabled={selectionExists}
+          onClick={handleLogout}
+          className="mt-8 text-sm text-blue-600 hover:underline transition"
         >
-          ✅ Needs Meal
-        </button>
-        <button
-          onClick={() => submitMealChoice(false)}
-          className={`px-6 py-3 rounded-lg shadow transition text-white ${
-            selectionExists
-              ? "bg-red-300 cursor-not-allowed"
-              : "bg-red-600 hover:bg-red-700"
-          }`}
-          disabled={selectionExists}
-        >
-          ❌ Does Not Need Meal
+          Log Out
         </button>
       </div>
-
-      {status && <p className="text-lg font-medium mt-2">{status}</p>}
-
-      <button
-        onClick={handleLogout}
-        className="mt-8 text-sm text-blue-600 hover:underline"
-      >
-        Log Out
-      </button>
-    </div>
+    </main>
   );
 }

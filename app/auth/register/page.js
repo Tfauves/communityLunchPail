@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { auth, db } from "@/firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, collection, serverTimestamp } from "firebase/firestore";
+import Link from "next/link";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -14,7 +15,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // Generate a random ID for lunchId
   const generateLunchId = () => doc(collection(db, "students")).id;
 
   const handleSubmit = async (e) => {
@@ -23,7 +23,6 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      // 1. Create user with Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -31,10 +30,8 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
 
-      // 2. Generate lunchId
       const lunchId = generateLunchId();
 
-      // 3. Create student document
       await setDoc(doc(db, "students", user.uid), {
         name,
         email,
@@ -42,83 +39,99 @@ export default function RegisterPage() {
         createdAt: serverTimestamp(),
       });
 
-      // 4. Redirect
       router.push("/dashboard");
     } catch (err) {
       console.error("Registration error:", err.message);
-      setError("Failed to register: " + err.message);
+      setError("⚠️ " + err.message);
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4">
-      <div className="bg-white p-8 rounded shadow-md max-w-md w-full">
-        <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white w-full max-w-md p-8 rounded-2xl shadow-md border border-gray-200 space-y-6"
+      >
+        <h2 className="text-3xl font-bold text-center text-blue-700">
+          Create Your Account
+        </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="mt-1 w-full border p-2 rounded focus:ring focus:ring-blue-500"
-            />
-          </div>
+        {error && <p className="text-red-600 text-center text-sm">{error}</p>}
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 w-full border p-2 rounded focus:ring focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 w-full border p-2 rounded focus:ring focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+        <div>
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-1"
           >
-            {loading ? "Registering..." : "Register"}
-          </button>
+            Full Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Jane Doe"
+            required
+            className="w-full border border-gray-300 px-4 py-2 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
-        </form>
-      </div>
-    </div>
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+            className="w-full border border-gray-300 px-4 py-2 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+            className="w-full border border-gray-300 px-4 py-2 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-3 rounded-md text-white font-semibold transition ${
+            loading
+              ? "bg-blue-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+
+        <p className="text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <Link href="/auth/login" className="text-blue-600 hover:underline">
+            Log in here
+          </Link>
+        </p>
+      </form>
+    </main>
   );
 }

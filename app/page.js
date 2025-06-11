@@ -27,33 +27,35 @@ export default function HomePage() {
 
   if (checkingAuth) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <p>Loading authentication status...</p>
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-700 font-medium text-lg animate-pulse">
+        Checking authentication...
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center text-center">
-      <h1 className="text-3xl font-bold mb-4">
-        Welcome to the School Lunch Tracker
-      </h1>
-      <p className="mb-6">
-        Let your school know if your child needs a lunch today.
-      </p>
-      <div className="space-x-4">
-        <a
-          href="/auth/login"
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Log In
-        </a>
-        <a
-          href="/auth/register"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Register
-        </a>
+    <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center text-center p-6 font-sans text-gray-800">
+      <div className="bg-white p-10 rounded-2xl shadow-md max-w-md w-full border border-gray-200">
+        <h1 className="text-3xl font-bold text-blue-700 mb-4">
+          🥪 School Lunch Tracker
+        </h1>
+        <p className="text-base mb-6 text-gray-600">
+          Let your school know if your child needs a lunch today.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="/auth/login"
+            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-md font-medium shadow-sm transition"
+          >
+            Log In
+          </a>
+          <a
+            href="/auth/register"
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-md font-medium shadow-sm transition"
+          >
+            Register
+          </a>
+        </div>
       </div>
     </main>
   );

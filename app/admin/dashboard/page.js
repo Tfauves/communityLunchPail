@@ -22,7 +22,7 @@ export default function AdminDashboard() {
         await loadDashboardData();
         setAuthChecked(true);
       } else {
-        router.replace("/"); // prevent back-button flash
+        router.replace("/");
       }
     });
 
@@ -58,75 +58,82 @@ export default function AdminDashboard() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-pink-600 text-xl font-bold animate-pulse">
+      <div className="min-h-screen flex items-center justify-center text-blue-600 text-xl font-semibold animate-pulse">
         Checking admin access...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-yellow-100 to-blue-100 p-8 font-sans text-gray-800">
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 md:p-10">
       <div className="max-w-5xl mx-auto space-y-8">
-        <header className="flex justify-between items-center">
-          <h1 className="text-4xl font-extrabold text-pink-600 drop-shadow-sm">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-blue-700">
             🍱 Admin Dashboard
           </h1>
           <button
             onClick={handleLogout}
-            className="text-sm bg-white hover:bg-red-100 text-red-600 font-semibold px-4 py-2 rounded-full shadow-sm transition"
+            className="bg-white text-red-600 border border-red-200 hover:bg-red-50 px-4 py-2 rounded-md shadow-sm transition"
           >
             Log Out
           </button>
-        </header>
+        </div>
 
-        <section className="bg-white rounded-2xl shadow-lg p-6 border-l-8 border-pink-300">
-          <h2 className="text-2xl font-bold text-pink-500 mb-4">
+        {/* Meal Selections */}
+        <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
+          <h2 className="text-xl font-semibold text-blue-600 mb-4">
             📋 Meal Selections for Today
           </h2>
           {mealSelections.length > 0 ? (
-            <ul className="space-y-2">
+            <ul className="divide-y divide-blue-100">
               {mealSelections.map((entry, idx) => (
-                <li
-                  key={idx}
-                  className="bg-pink-50 border border-pink-200 rounded-lg p-3 shadow-sm"
-                >
-                  <span className="font-semibold">User ID:</span> {entry.userId}{" "}
-                  —{" "}
-                  <span className="font-medium text-green-600">
+                <li key={idx} className="py-2">
+                  <span className="font-medium">User ID:</span> {entry.userId} —{" "}
+                  <span
+                    className={`font-semibold ${
+                      entry.needsMeal ? "text-green-600" : "text-gray-500"
+                    }`}
+                  >
                     {entry.needsMeal ? "✅ Needs Meal" : "❌ No Meal"}
                   </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600">No meal requests submitted today.</p>
+            <p className="text-gray-600 italic">
+              No meal selections submitted today.
+            </p>
           )}
-        </section>
+        </div>
 
-        <section className="bg-white rounded-2xl shadow-lg p-6 border-l-8 border-yellow-300">
-          <h2 className="text-2xl font-bold text-yellow-600 mb-4">
+        {/* Students List */}
+        <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-400">
+          <h2 className="text-xl font-semibold text-yellow-600 mb-4">
             👥 Registered Students
           </h2>
           {students.length > 0 ? (
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ul className="grid gap-4 sm:grid-cols-2">
               {students.map((student) => (
                 <li
                   key={student.id}
-                  className="bg-yellow-50 border border-yellow-200 rounded-lg p-4"
+                  className="bg-yellow-50 border border-yellow-200 p-4 rounded-md shadow-sm"
                 >
                   <p className="font-semibold text-lg text-yellow-700">
-                    {student.name}
+                    {student.name || "Unnamed"}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    Lunch ID: {student.lunchId}
+                  <p className="text-sm text-gray-700">
+                    Lunch ID: {student.lunchId || "N/A"}
                   </p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600">No students found.</p>
+            <p className="text-gray-600 italic">
+              No registered students found.
+            </p>
           )}
-        </section>
+        </div>
       </div>
     </div>
   );
