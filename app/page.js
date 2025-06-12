@@ -49,12 +49,12 @@ export default function HomePage() {
           >
             Log In
           </a>
-          <a
+          {/* <a
             href="/auth/register"
             className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-md font-medium shadow-sm transition"
           >
             Register
-          </a>
+          </a> */}
         </div>
       </div>
     </main>
